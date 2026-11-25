@@ -1,0 +1,4 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {schedulePlan} from '../src/services/schedulePlan.js';
+test('preserves recipient order and applies the minimum delay',()=>{const start=new Date('2026-11-24T10:00:00.000Z');const plan=schedulePlan(['a@example.com','b@example.com'],start,3,10);assert.deepEqual(plan.map(x=>x.recipient),['a@example.com','b@example.com']);assert.equal(plan[1].scheduledAt.getTime()-plan[0].scheduledAt.getTime(),3000)});
+test('rolls over to another quota window without dropping recipients',()=>{const start=new Date('2026-11-24T10:00:00.000Z');const plan=schedulePlan(['a@example.com','b@example.com','c@example.com'],start,0,2);assert.equal(plan.length,3);assert.equal(plan[2].scheduledAt.getTime()-start.getTime(),3_600_000)});
+test('rejects an invalid quota',()=>assert.throws(()=>schedulePlan(['a@example.com'],new Date(),2,0),/Invalid schedule limits/));

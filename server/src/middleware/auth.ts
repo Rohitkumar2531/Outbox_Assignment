@@ -1,0 +1,3 @@
+import type {Request,Response,NextFunction} from 'express'; import jwt from 'jsonwebtoken'; import { env } from '../config/env.js';
+export function auth(req:Request,res:Response,next:NextFunction){const token=req.cookies?.reachinbox||req.headers.authorization?.replace(/^Bearer /,''); if(!token)return res.status(401).json({error:'Authentication required'}); try{req.user=jwt.verify(token,env.JWT_SECRET) as Request['user']; next()}catch{return res.status(401).json({error:'Session expired'})}}
+export function signIn(user:{id:string;name:string;email:string;avatar:string|null},res:Response){const token=jwt.sign(user,env.JWT_SECRET,{expiresIn:'7d'});res.cookie('reachinbox',token,{httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax',maxAge:7*86400000})}
